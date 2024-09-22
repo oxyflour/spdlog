@@ -147,7 +147,8 @@ FMT_API FMT_FUNC auto format_facet<std::locale>::do_put(
 FMT_FUNC auto vsystem_error(int error_code, string_view fmt, format_args args)
     -> std::system_error {
   auto ec = std::error_code(error_code, std::generic_category());
-  return std::system_error(ec, vformat(fmt, args));
+  std::system_error ret(ec, vformat(fmt, args));
+  return ret;
 }
 
 namespace detail {
@@ -1411,7 +1412,8 @@ FMT_FUNC void format_system_error(detail::buffer<char>& out, int error_code,
                                   const char* message) noexcept {
   FMT_TRY {
     auto ec = std::error_code(error_code, std::generic_category());
-    write(std::back_inserter(out), std::system_error(ec, message).what());
+    std::system_error err(ec, message);
+    write(std::back_inserter(out), err.what());
     return;
   }
   FMT_CATCH(...) {}
